@@ -1,0 +1,21 @@
+{
+    "collab_server" : "",
+    "contents" : "## ----loaddata------------------------------------------------------------\nunzip(zipfile=\"activity.zip\")\ndata <- read.csv(\"activity.csv\")\n\n\n## ------------------------------------------------------------------------\nlibrary(ggplot2)\ntotal.steps <- tapply(data$steps, data$date, FUN=sum, na.rm=TRUE)\nqplot(total.steps, binwidth=1000, xlab=\"total number of steps taken each day\")\nmean(total.steps, na.rm=TRUE)\nmedian(total.steps, na.rm=TRUE)\n\n\n## ------------------------------------------------------------------------\nlibrary(ggplot2)\naverages <- aggregate(x=list(steps=data$steps), by=list(interval=data$interval),\n                      FUN=mean, na.rm=TRUE)\nggplot(data=averages, aes(x=interval, y=steps)) +\n  geom_line() +\n  xlab(\"5-minute interval\") +\n  ylab(\"average number of steps taken\")\n\n\n## ------------------------------------------------------------------------\naverages[which.max(averages$steps),]\n\n\n## ----how_many_missing----------------------------------------------------\nmissing <- is.na(data$steps)\n# How many missing\ntable(missing)\n\n\n## ------------------------------------------------------------------------\n# Replace each missing value with the mean value of its 5-minute interval\nfill.value <- function(steps, interval) {\n  filled <- NA\n  if (!is.na(steps))\n    filled <- c(steps)\n  else\n    filled <- (averages[averages$interval==interval, \"steps\"])\n  return(filled)\n}\nfilled.data <- data\nfilled.data$steps <- mapply(fill.value, filled.data$steps, filled.data$interval)\n\n\n## ------------------------------------------------------------------------\ntotal.steps <- tapply(filled.data$steps, filled.data$date, FUN=sum)\nqplot(total.steps, binwidth=1000, xlab=\"total number of steps taken each day\")\nmean(total.steps)\nmedian(total.steps)\n\n\n## ------------------------------------------------------------------------\nweekday.or.weekend <- function(date) {\n  day <- weekdays(date)\n  if (day %in% c(\"Monday\", \"Tuesday\", \"Wednesday\", \"Thursday\", \"Friday\"))\n    return(\"weekday\")\n  else if (day %in% c(\"Saturday\", \"Sunday\"))\n    return(\"weekend\")\n  else\n    stop(\"invalid date\")\n}\nfilled.data$date <- as.Date(filled.data$date)\nfilled.data$day <- sapply(filled.data$date, FUN=weekday.or.weekend)\n\n\n## ------------------------------------------------------------------------\naverages <- aggregate(steps ~ interval + day, data=filled.data, mean)\nggplot(averages, aes(interval, steps)) + geom_line() + facet_grid(day ~ .) +\n  xlab(\"5-minute interval\") + ylab(\"Number of steps\")",
+    "created" : 1498602597524.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "2866901154",
+    "id" : "873B1D08",
+    "lastKnownWriteTime" : 1498602688,
+    "last_content_update" : 1498602688967,
+    "path" : "~/Documents/GitHub/RepData_PeerAssessment1/PA1_template.R",
+    "project_path" : "PA1_template.R",
+    "properties" : {
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 4,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}
